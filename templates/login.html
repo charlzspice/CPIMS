@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title> Login</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container mt-5">
+        <h2>Login Form</h2>
+        <div id="alert" style="display: none;" class="alert"></div>
+        <form id="loginForm">
+            <div class="form-group">
+                <label for="username">Username:</label>
+                <input type="text" class="form-control" id="username" name="username">
+            </div>
+            <div class="form-group">
+                <label for="password">Password:</label>
+                <input type="password" class="form-control" id="password" name="password">
+            </div>
+            <button type="submit" class="btn btn-primary">Login</button>
+        </form>
+        <br>
+        <div id="dataFormContainer" style="display: none;">
+            <h3>Enter ID Number to Retrieve Data</h3>
+            <form id="dataForm">
+                <div class="form-group">
+                    <label for="id_number">ID Number:</label>
+                    <input type="text" class="form-control" id="id_number" name="id_number" >
+                </div>
+                <input type="hidden" id="session_token" name="session_token">
+                <button type="submit" class="btn btn-primary">Submit</button>
+            </form>
+        </div>
+        <div id="result"></div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script>
+        $(document).ready(function(){
+            // Handle login form submission
+            $('#loginForm').on('submit', function(e){
+                e.preventDefault();
+                $.ajax({
+                    type: 'POST',
+                    url: '/login',
+                    data: $(this).serialize(),
+                    success: function(response){
+                        if(response.success){
+                            $('#alert').hide();
+                            $('#session_token').val(response.session_token);
+                            $('#dataFormContainer').show();
+                        } else {
+                            $('#alert').removeClass().addClass('alert alert-danger').text(response.message).show();
+                        }
+                    },
+                    error: function(){
+                        $('#alert').removeClass().addClass('alert alert-danger').text('An error occurred during login.').show();
+                    }
+                });
+            });
+
+            // Handle ID data form submission
+            $('#dataForm').on('submit', function(e){
+                e.preventDefault();
+                $.ajax({
+                    type: 'POST',
+                    url: '/get_data',
+                    data: $(this).serialize(),
+                    success: function(response){
+                        if(response.success){
+                            $('#result').html('<pre>' + JSON.stringify(response.data, null, 4) + '</pre>');
+                        } else {
+                            $('#result').html('<div class="alert alert-danger">' + response.message + '</div>');
+                        }
+                    },
+                    error: function(){
+                        $('#result').html('<div class="alert alert-danger">An error occurred while retrieving the data.</div>');
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>

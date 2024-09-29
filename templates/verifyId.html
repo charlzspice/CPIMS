@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SOAP Client</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container mt-5">
+        <h2> Verification By ID</h2>
+        <form id="dataForm">
+            <div class="form-group">
+                <label for="id_number">ID Number:</label>
+                <input type="text" class="form-control" id="id_number" name="id_number" >
+                <label for="serial_number">Serial Number:</label>
+                <input type="text" class="form-control" id="serial_number" name="serial_number">
+            </div>
+            <button type="submit" class="btn btn-primary">Verify</button>
+        </form>
+        <br>
+        <div id="result"></div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script>
+        $(document).ready(function(){
+            $('#dataForm').on('submit', function(e){
+                e.preventDefault();
+
+                $.ajax({
+                    type: 'POST',
+                    url: '/get_data',
+                    data: $(this).serialize(),
+                    success: function(response){
+                        if(response.success){
+                            $('#result').html('<pre>' + response.data + '</pre>');
+                        } else {
+                            $('#result').html('<div class="alert alert-danger">' + response.message + '</div>');
+                        }
+                    },
+                    error: function(){
+                        $('#result').html('<div class="alert alert-danger">An error occurred while processing your request.</div>');
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
